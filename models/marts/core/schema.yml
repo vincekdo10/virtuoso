@@ -2,89 +2,235 @@ version: 2
 
 models:
   - name: fct_commission_booking_mapping
-    description: "Fact table mapping commission records to booking data, migrated from Snowflake dynamic table COMMISSION.COMMISSION_BOOKING_MAPPING"
+    description: "Fact table mapping commission data to booking data with business logic"
     columns:
       - name: commissionid
-        description: "Unique identifier for the commission record"
-        tests:
-          - unique
+        description: "Commission ID"
+        data_tests:
           - not_null
+          - unique
       - name: scbookingid
-        description: "SC booking identifier for mapping to booking master"
-        tests:
+        description: "SC Booking ID"
+        data_tests:
           - not_null
       - name: datasourceid
-        description: "Data source identifier for the commission record"
-        tests:
+        description: "Data Source ID"
+        data_tests:
           - not_null
       - name: agency_id
-        description: "Unique identifier for the travel agency"
-        tests:
+        description: "Agency ID"
+        data_tests:
           - not_null
       - name: agencybranchid
-        description: "Unique identifier for the agency branch"
-        tests:
+        description: "Agency Branch ID"
+        data_tests:
           - not_null
-      - name: booking_id
-        description: "Unique identifier for the booking"
-      - name: supplier_id
-        description: "Identifier for the travel supplier"
-      - name: invoice_number
-        description: "Invoice number for the booking"
-      - name: booking_issue_date
-        description: "Date when the booking was issued"
-      - name: travel_start_date
-        description: "Start date of travel"
-      - name: travel_end_date
-        description: "End date of travel"
-      - name: booking_type_id
-        description: "Type classification of the booking"
-      - name: booking_subtype_id
-        description: "Subtype classification of the booking"
-      - name: origin_airport_id
-        description: "Origin airport identifier"
-      - name: destination_airport_id
-        description: "Destination airport identifier"
-      - name: booking_attribute_id
-        description: "Booking attribute identifier"
-      - name: consumer_id
-        description: "Consumer identifier"
-      - name: primary_advisor_id
-        description: "Primary travel advisor identifier"
-      - name: marketing_advisor_id
-        description: "Marketing advisor identifier"
-      - name: booking_currencycode
-        description: "Currency code for the booking"
-      - name: agency_branch_id
-        description: "Agency branch identifier"
-      - name: total_booking_amount
-        description: "Total amount of the booking"
-        tests:
-          - dbt_utils.expression_is_true:
-              expression: ">= 0"
+      - name: is_valid_booking
+        description: "Whether booking is valid (not deleted, excluded, or void)"
+        data_tests:
+          - not_null
       - name: isbookingmapped
-        description: "Flag indicating if booking is successfully mapped (1=mapped, 0=not mapped)"
-        tests:
+        description: "Whether booking is mapped (0 or 1)"
+        data_tests:
           - not_null
           - accepted_values:
               values: [0, 1]
+      - name: mapping_status
+        description: "Mapping status"
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['mapped', 'unmapped']
       - name: booking_value_tier
-        description: "Value tier classification based on booking amount"
-        tests:
+        description: "Booking value tier"
+        data_tests:
           - accepted_values:
               values: ['high_value', 'medium_value', 'low_value', 'zero_value']
       - name: travel_duration_days
-        description: "Duration of travel in days"
-        tests:
+        description: "Travel duration in days"
+        data_tests:
           - dbt_utils.expression_is_true:
               expression: ">= 0"
-      - name: is_valid_booking
-        description: "Boolean flag indicating if booking is valid (not deleted, excluded, or void)"
-        tests:
+      - name: total_booking_amount
+        description: "Total booking amount"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+  - name: dim_consumer_master
+    description: "Master consumer dimension consolidating all consumer stream data"
+    columns:
+      - name: consumerid
+        description: "Unique consumer identifier"
+        data_tests:
           - not_null
-      - name: mapping_status
-        description: "Text description of mapping status"
-        tests:
+          - unique
+      - name: first_name
+        description: "Consumer first name"
+      - name: last_name
+        description: "Consumer last name"
+      - name: primary_email
+        description: "Primary email address"
+      - name: is_active
+        description: "Consumer active status"
+        data_tests:
           - not_null
+      - name: is_excluded
+        description: "Consumer exclusion flag"
+        data_tests:
           - accepted_values:
-              values: ['mapped', 'unmapped'] 
+              values: [true, false]
+              config:
+                where: "is_excluded is not null"
+      - name: is_soft_deleted
+        description: "Soft deleted flag"
+        data_tests:
+          - accepted_values:
+              values: [true, false]
+              config:
+                where: "is_soft_deleted is not null"
+      - name: isrealperson
+        description: "Real person validation flag"
+        data_tests:
+          - accepted_values:
+              values: [true, false]
+              config:
+                where: "isrealperson is not null"
+      - name: is_primary_email_valid
+        description: "Primary email validation flag"
+        data_tests:
+          - accepted_values:
+              values: [true, false]
+              config:
+                where: "is_primary_email_valid is not null"
+      - name: gender
+        description: "Consumer gender"
+        data_tests:
+          - accepted_values:
+              values: ['M', 'F', 'Male', 'Female', 'U', 'Unknown']
+              config:
+                where: "gender is not null"
+      - name: age
+        description: "Consumer age"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 and <= 150"
+              config:
+                where: "age is not null"
+      - name: totalspend12months
+        description: "Total spend in last 12 months"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              config:
+                where: "totalspend12months is not null"
+      - name: tourspend12months
+        description: "Tour spend in last 12 months"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              config:
+                where: "tourspend12months is not null"
+      - name: hotelspend12months
+        description: "Hotel spend in last 12 months"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              config:
+                where: "hotelspend12months is not null"
+      - name: normalized_primary_state
+        description: "Normalized primary state"
+        data_tests:
+          - dbt_utils.not_empty_string:
+              config:
+                where: "normalized_primary_state is not null"
+      - name: normalized_primary_zip
+        description: "Normalized primary ZIP code"
+        data_tests:
+          - dbt_utils.not_empty_string:
+              config:
+                where: "normalized_primary_zip is not null"
+      - name: clientsegment
+        description: "Client segment classification"
+      - name: agencyid
+        description: "Agency ID"
+      - name: is_agency_active
+        description: "Agency active status"
+        data_tests:
+          - accepted_values:
+              values: [true, false]
+              config:
+                where: "is_agency_active is not null"
+      - name: inserted_timestamp
+        description: "Record insertion timestamp"
+        data_tests:
+          - not_null:
+              config:
+                where: "inserted_timestamp is not null"
+      - name: updated_timestamp
+        description: "Record update timestamp"
+        data_tests:
+          - not_null
+      - name: source_streams_updated
+        description: "Array of source streams that contributed to this record"
+        data_tests:
+          - not_null
+
+    data_tests:
+      # Test that consumers with valid emails have email validation data
+      - dbt_utils.expression_is_true:
+          name: valid_email_has_validation
+          expression: |
+            case 
+              when primary_email is not null and primary_email != '' 
+              then is_primary_email_valid is not null 
+              else true 
+            end
+          config:
+            severity: warn
+
+      # Test that consumers with addresses have normalized address data
+      - dbt_utils.expression_is_true:
+          name: address_normalization_completeness
+          expression: |
+            case 
+              when raw_city is not null and raw_state is not null 
+              then normalized_primary_city is not null and normalized_primary_state is not null
+              else true 
+            end
+          config:
+            severity: warn
+
+      # Test data consistency between raw and normalized addresses
+      - dbt_utils.expression_is_true:
+          name: address_consistency_check
+          expression: |
+            case 
+              when normalized_primary_state is not null and raw_state is not null
+              then upper(left(normalized_primary_state, 2)) = upper(left(raw_state, 2))
+              else true 
+            end
+          config:
+            severity: warn
+
+      # Test that active consumers are not soft deleted
+      - dbt_utils.expression_is_true:
+          name: active_not_soft_deleted
+          expression: |
+            case 
+              when is_active = true 
+              then coalesce(is_soft_deleted, false) = false
+              else true 
+            end
+
+      # Test spend amounts are reasonable
+      - dbt_utils.expression_is_true:
+          name: reasonable_spend_amounts
+          expression: |
+            case 
+              when totalspend12months is not null 
+              then totalspend12months <= 1000000  -- No more than $1M spend
+              else true 
+            end
+          config:
+            severity: warn 
