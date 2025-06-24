@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: consumer
     description: "Consumer database containing stream tables and master consumer data"
-    database: consumer
+    database: DEMO_VINCENT_VIRUTOSO
     schema: consumer
     tables:
       - name: stream_consumer
