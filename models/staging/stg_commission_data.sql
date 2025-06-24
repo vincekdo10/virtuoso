@@ -2,7 +2,7 @@
     materialized='dynamic_table',
     on_configuration_change='apply',
     target_lag='downstream',
-    snowflake_warehouse='WH_PIPE_COMMISSION'
+    snowflake_warehouse='DEMO_VINCENT_WH'
 ) }}
 
 with source_data as (
