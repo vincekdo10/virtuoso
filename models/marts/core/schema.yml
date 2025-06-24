@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: fct_commission_booking_mapping
+    description: "Fact table mapping commission records to booking data, migrated from Snowflake dynamic table COMMISSION.COMMISSION_BOOKING_MAPPING"
+    columns:
+      - name: commissionid
+        description: "Unique identifier for the commission record"
+        tests:
+          - unique
+          - not_null
+      - name: scbookingid
+        description: "SC booking identifier for mapping to booking master"
+        tests:
+          - not_null
+      - name: datasourceid
+        description: "Data source identifier for the commission record"
+        tests:
+          - not_null
+      - name: agency_id
+        description: "Unique identifier for the travel agency"
+        tests:
+          - not_null
+      - name: agencybranchid
+        description: "Unique identifier for the agency branch"
+        tests:
+          - not_null
+      - name: booking_id
+        description: "Unique identifier for the booking"
+      - name: supplier_id
+        description: "Identifier for the travel supplier"
+      - name: invoice_number
+        description: "Invoice number for the booking"
+      - name: booking_issue_date
+        description: "Date when the booking was issued"
+      - name: travel_start_date
+        description: "Start date of travel"
+      - name: travel_end_date
+        description: "End date of travel"
+      - name: booking_type_id
+        description: "Type classification of the booking"
+      - name: booking_subtype_id
+        description: "Subtype classification of the booking"
+      - name: origin_airport_id
+        description: "Origin airport identifier"
+      - name: destination_airport_id
+        description: "Destination airport identifier"
+      - name: booking_attribute_id
+        description: "Booking attribute identifier"
+      - name: consumer_id
+        description: "Consumer identifier"
+      - name: primary_advisor_id
+        description: "Primary travel advisor identifier"
+      - name: marketing_advisor_id
+        description: "Marketing advisor identifier"
+      - name: booking_currencycode
+        description: "Currency code for the booking"
+      - name: agency_branch_id
+        description: "Agency branch identifier"
+      - name: total_booking_amount
+        description: "Total amount of the booking"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: isbookingmapped
+        description: "Flag indicating if booking is successfully mapped (1=mapped, 0=not mapped)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: booking_value_tier
+        description: "Value tier classification based on booking amount"
+        tests:
+          - accepted_values:
+              values: ['high_value', 'medium_value', 'low_value', 'zero_value']
+      - name: travel_duration_days
+        description: "Duration of travel in days"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: is_valid_booking
+        description: "Boolean flag indicating if booking is valid (not deleted, excluded, or void)"
+        tests:
+          - not_null
+      - name: mapping_status
+        description: "Text description of mapping status"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['mapped', 'unmapped'] 

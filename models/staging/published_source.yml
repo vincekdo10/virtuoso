@@ -1,0 +1,86 @@
+version: 2
+
+sources:
+  - name: published
+    description: "Published booking and travel data"
+    database: published
+    schema: published
+    tables:
+      - name: booking_master
+        description: "Master booking data with travel details and financial information"
+        columns:
+          - name: data_source_id
+            description: "Data source identifier for the booking"
+            tests:
+              - not_null
+          - name: sc_booking_id
+            description: "SC booking identifier for commission mapping"
+            tests:
+              - not_null
+          - name: agency_id
+            description: "Unique identifier for the travel agency"
+            tests:
+              - not_null
+          - name: agency_branch_id
+            description: "Unique identifier for the agency branch"
+            tests:
+              - not_null
+          - name: booking_id
+            description: "Unique identifier for the booking"
+            tests:
+              - unique
+              - not_null
+          - name: supplier_id
+            description: "Identifier for the travel supplier"
+          - name: invoice_number
+            description: "Invoice number for the booking"
+          - name: booking_issue_date
+            description: "Date when the booking was issued"
+          - name: travel_start_date
+            description: "Start date of travel"
+          - name: travel_end_date
+            description: "End date of travel"
+          - name: booking_type_id
+            description: "Type classification of the booking"
+          - name: booking_subtype_id
+            description: "Subtype classification of the booking"
+          - name: origin_airport_id
+            description: "Origin airport identifier"
+          - name: destination_airport_id
+            description: "Destination airport identifier"
+          - name: booking_attribute_id
+            description: "Booking attribute identifier"
+          - name: consumer_id
+            description: "Consumer identifier"
+          - name: primary_advisor_id
+            description: "Primary travel advisor identifier"
+          - name: marketing_advisor_id
+            description: "Marketing advisor identifier"
+          - name: currency_code
+            description: "Currency code for the booking"
+            tests:
+              - not_null
+          - name: total_booking_amount
+            description: "Total amount of the booking"
+            tests:
+              - not_null
+              - dbt_utils.expression_is_true:
+                  expression: ">= 0"
+          - name: is_deleted
+            description: "Flag indicating if booking is deleted"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [true, false]
+          - name: exclude_booking
+            description: "Flag indicating if booking should be excluded"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [true, false]
+          - name: void_transaction
+            description: "Flag indicating if transaction is void"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [true, false] 
