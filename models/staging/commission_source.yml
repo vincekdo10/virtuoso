@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: commission
     description: "Commission processing data from Snowflake"
-    database: commission
+    database: DEMO_VINCENT_VIRUTOSO
     schema: commission
     tables:
       - name: commission_materialized_withuuid

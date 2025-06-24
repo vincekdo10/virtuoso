@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: published
     description: "Published booking and travel data"
-    database: published
+    database: DEMO_VINCENT_VIRUTOSO
     schema: published
     tables:
       - name: booking_master
