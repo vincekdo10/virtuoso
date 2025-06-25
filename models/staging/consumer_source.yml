@@ -1,0 +1,638 @@
+version: 2
+
+sources:
+  - name: consumer
+    description: "Consumer data streams from Snowflake consumer database"
+    database: consumer
+    schema: consumer
+    tables:
+      - name: stream_consumer
+        description: "Main consumer information stream with personal and contact details"
+        columns:
+          - name: consumerid
+            description: "Unique identifier for the consumer"
+            tests:
+              - not_null
+          - name: sourcesystemtimestamp
+            description: "Timestamp from source system"
+          - name: is_active
+            description: "Flag indicating if consumer is active"
+            tests:
+              - not_null
+          - name: first_name
+            description: "Consumer first name"
+          - name: last_name
+            description: "Consumer last name"
+          - name: membernumber
+            description: "Member number"
+          - name: branch_member_number
+            description: "Branch member number"
+          - name: prefix
+            description: "Name prefix"
+          - name: suffix
+            description: "Name suffix"
+          - name: salutation
+            description: "Salutation"
+          - name: account_name
+            description: "Account name"
+          - name: address_line_1
+            description: "Primary address line 1"
+          - name: address_line_2
+            description: "Primary address line 2"
+          - name: aptsuite
+            description: "Apartment/suite number"
+          - name: city
+            description: "City"
+          - name: state
+            description: "State"
+          - name: zip
+            description: "ZIP code"
+          - name: country
+            description: "Country"
+          - name: secondary_address_line_1
+            description: "Secondary address line 1"
+          - name: secondary_address_line_2
+            description: "Secondary address line 2"
+          - name: secondary_aptsuite
+            description: "Secondary apartment/suite"
+          - name: secondary_city
+            description: "Secondary city"
+          - name: secondary_state
+            description: "Secondary state"
+          - name: secondary_zip
+            description: "Secondary ZIP code"
+          - name: secondary_country
+            description: "Secondary country"
+          - name: secondary_address_from_month
+            description: "Secondary address from month"
+          - name: secondary_address_to_month
+            description: "Secondary address to month"
+          - name: primary_email
+            description: "Primary email address"
+          - name: phone_number
+            description: "Phone number"
+          - name: business_phone
+            description: "Business phone number"
+          - name: cell_phone
+            description: "Cell phone number"
+          - name: account_id
+            description: "Account identifier"
+          - name: preferred_language
+            description: "Preferred language"
+          - name: fax_phone
+            description: "Fax phone number"
+          - name: sourcesystem
+            description: "Source system"
+          - name: primary_agent_id
+            description: "Primary agent identifier"
+          - name: data_source_id
+            description: "Data source identifier"
+          - name: create_date
+            description: "Creation date"
+          - name: isdeleted
+            description: "Deletion flag"
+          - name: deleted_timestamp
+            description: "Deletion timestamp"
+
+      - name: stream_consumer_extension
+        description: "Consumer extension data stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: interface_id
+            description: "Interface identifier"
+          - name: agent_interface_id
+            description: "Agent interface identifier"
+          - name: extended_data
+            description: "Extended data JSON"
+
+      - name: stream_crm_consumer
+        description: "CRM consumer mapping stream"
+        columns:
+          - name: consumer_id
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: crm_consumer_id
+            description: "CRM consumer identifier"
+
+      - name: stream_consumer_isrealperson
+        description: "Consumer real person classification stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: isrealperson
+            description: "Real person flag"
+            tests:
+              - accepted_values:
+                  values: [true, false]
+
+      - name: stream_consumer_seasonal_address_selector
+        description: "Consumer seasonal address selector stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: isseasonalflag
+            description: "Seasonal flag"
+
+      - name: stream_consumer_email_marketing_override
+        description: "Consumer email marketing override stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: email_marketing_override
+            description: "Email marketing override flag"
+
+      - name: stream_special_dates
+        description: "Consumer special dates stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: anniversary
+            description: "Anniversary date"
+          - name: birthday
+            description: "Birthday date"
+          - name: wedding
+            description: "Wedding date"
+
+      - name: stream_additional_attributes
+        description: "Consumer additional attributes stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: gender
+            description: "Gender"
+          - name: citizenship
+            description: "Citizenship"
+          - name: issmoker
+            description: "Smoker flag"
+          - name: customertraveltype
+            description: "Customer travel type"
+          - name: ismarketable
+            description: "Marketable flag"
+
+      - name: stream_append_attributes
+        description: "Consumer append attributes stream with 200+ demographic fields"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: age
+            description: "Age"
+          - name: agerange_18_24yearsold
+            description: "Age range 18-24 flag"
+          - name: agerange_25_34yearsold
+            description: "Age range 25-34 flag"
+          - name: agerange_35_44yearsold
+            description: "Age range 35-44 flag"
+          - name: agerange_45_54yearsold
+            description: "Age range 45-54 flag"
+          - name: agerange_55_64yearsold
+            description: "Age range 55-64 flag"
+          - name: agerange_65_74yearsold
+            description: "Age range 65-74 flag"
+          - name: agerange_75plusyearsold
+            description: "Age range 75+ flag"
+          - name: age_year_of_birth
+            description: "Year of birth"
+          - name: age_month_of_birth
+            description: "Month of birth"
+          - name: gender
+            description: "Gender"
+          - name: incomerange
+            description: "Income range"
+          - name: educationlevel
+            description: "Education level"
+          - name: homevaluerange
+            description: "Home value range"
+          - name: networth
+            description: "Net worth"
+          - name: maritalstatus_married
+            description: "Married status flag"
+          - name: maritalstatus_single
+            description: "Single status flag"
+          - name: numberofadultsinhh
+            description: "Number of adults in household"
+          - name: numberofchildren
+            description: "Number of children"
+          - name: numberofchildreninhh
+            description: "Number of children in household"
+          - name: numberofpersonsinhh
+            description: "Number of persons in household"
+          - name: ownscat
+            description: "Owns cat flag"
+          - name: ownsdog
+            description: "Owns dog flag"
+          - name: lengthofresidence
+            description: "Length of residence"
+          - name: homeownership_owner
+            description: "Home owner flag"
+          - name: homeownership_renter
+            description: "Home renter flag"
+          - name: dwellingtype_singlefamily
+            description: "Single family dwelling flag"
+          - name: dwellingtype_multifamily
+            description: "Multi family dwelling flag"
+          - name: dwellingtype_pobox
+            description: "PO box dwelling flag"
+          - name: county_name
+            description: "County name"
+          - name: county_fips
+            description: "County FIPS code"
+          - name: dma
+            description: "DMA"
+          - name: dma_code
+            description: "DMA code"
+          - name: msa
+            description: "MSA"
+          - name: religion
+            description: "Religion"
+          - name: mosaic
+            description: "Mosaic code"
+          - name: mosaic_group
+            description: "Mosaic group"
+
+      - name: stream_travel_segment
+        description: "Consumer travel segment stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: tourgroups
+            description: "Tour groups flag"
+          - name: tourhostedtourssetdepartures
+            description: "Tour hosted tours set departures flag"
+          - name: tourcustomexperiencefit
+            description: "Tour custom experience fit flag"
+          - name: tourchartersincentive
+            description: "Tour charters incentive flag"
+          - name: tourspecialtycruise
+            description: "Tour specialty cruise flag"
+          - name: tourvacationpackages
+            description: "Tour vacation packages flag"
+          - name: tourtravelservices
+            description: "Tour travel services flag"
+          - name: touractive
+            description: "Tour active flag"
+          - name: tourspend12months
+            description: "Tour spend 12 months amount"
+          - name: tourspend12months0to10k
+            description: "Tour spend 0-10K flag"
+          - name: tourspend12months10kto25k
+            description: "Tour spend 10K-25K flag"
+          - name: tourspend12months25kto50k
+            description: "Tour spend 25K-50K flag"
+          - name: tourspend12months50kplus
+            description: "Tour spend 50K+ flag"
+          - name: tourspend12months0
+            description: "Tour spend 0 flag"
+          - name: tourhistory1tour
+            description: "Tour history 1 tour flag"
+          - name: tourhistory2to5tour
+            description: "Tour history 2-5 tours flag"
+          - name: tourhistory6plustours
+            description: "Tour history 6+ tours flag"
+          - name: tourhistory0tour
+            description: "Tour history 0 tours flag"
+          - name: tourpending
+            description: "Tour pending flag"
+          - name: tourhistory
+            description: "Tour history"
+
+      - name: stream_hotel_travel_segment
+        description: "Consumer hotel travel segment stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: hotelexperiencebeach
+            description: "Hotel experience beach flag"
+          - name: hotelexperienceecotourism
+            description: "Hotel experience ecotourism flag"
+          - name: hotelexperiencelandmarks
+            description: "Hotel experience landmarks flag"
+          - name: hotelexperiencecitylife
+            description: "Hotel experience city life flag"
+          - name: hotelexperiencegolf
+            description: "Hotel experience golf flag"
+          - name: hotelexperienceski
+            description: "Hotel experience ski flag"
+          - name: hotelexperienceseclusion
+            description: "Hotel experience seclusion flag"
+          - name: hotelexperiencelocalimmersion
+            description: "Hotel experience local immersion flag"
+          - name: hotelexperiencewellness
+            description: "Hotel experience wellness flag"
+          - name: hotelexperienceadventure
+            description: "Hotel experience adventure flag"
+          - name: hotelroomstyleeclectic
+            description: "Hotel room style eclectic flag"
+          - name: hotelroomstyleindigenous
+            description: "Hotel room style indigenous flag"
+          - name: hotelroomstyleclassic
+            description: "Hotel room style classic flag"
+          - name: hotelroomstylecontemporary
+            description: "Hotel room style contemporary flag"
+          - name: hotelvibecasual
+            description: "Hotel vibe casual flag"
+          - name: hotelvibesophisticated
+            description: "Hotel vibe sophisticated flag"
+          - name: hotelvibezen
+            description: "Hotel vibe zen flag"
+          - name: hotelvibehip
+            description: "Hotel vibe hip flag"
+          - name: hotelpending
+            description: "Hotel pending flag"
+          - name: hotelspend12months
+            description: "Hotel spend 12 months amount"
+          - name: hotelhistory
+            description: "Hotel history"
+
+      - name: stream_profile_segment
+        description: "Consumer profile segment stream"
+        columns:
+          - name: consumer_id
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: clientsegment
+            description: "Client segment"
+
+      - name: stream_profile
+        description: "Consumer profile stream with detailed preferences"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: totaltripbudget_3000_8000
+            description: "Total trip budget 3000-8000 flag"
+          - name: totaltripbudget_8000_15000
+            description: "Total trip budget 8000-15000 flag"
+          - name: totaltripbudget_upto3000
+            description: "Total trip budget up to 3000 flag"
+          - name: totaltripbudget_15000plus
+            description: "Total trip budget 15000+ flag"
+          - name: classofservice_businessclass
+            description: "Class of service business class flag"
+          - name: classofservice_firstclass
+            description: "Class of service first class flag"
+          - name: clienttype_client
+            description: "Client type client flag"
+          - name: clienttype_referral
+            description: "Client type referral flag"
+          - name: clienttype_vip
+            description: "Client type VIP flag"
+          - name: destinations_alaska
+            description: "Destinations Alaska flag"
+          - name: destinations_antarctica
+            description: "Destinations Antarctica flag"
+          - name: destinations_arctic
+            description: "Destinations Arctic flag"
+          - name: destinations_australia
+            description: "Destinations Australia flag"
+          - name: destinations_bermuda
+            description: "Destinations Bermuda flag"
+          - name: destinations_centralamerica
+            description: "Destinations Central America flag"
+          - name: destinations_continentalus
+            description: "Destinations Continental US flag"
+          - name: destinations_costarica
+            description: "Destinations Costa Rica flag"
+          - name: destinations_easterneurope
+            description: "Destinations Eastern Europe flag"
+          - name: destinations_europe
+            description: "Destinations Europe flag"
+          - name: destinations_france
+            description: "Destinations France flag"
+          - name: destinations_germany
+            description: "Destinations Germany flag"
+          - name: destinations_hawaii
+            description: "Destinations Hawaii flag"
+          - name: destinations_hongkong
+            description: "Destinations Hong Kong flag"
+          - name: destinations_newzealand
+            description: "Destinations New Zealand flag"
+          - name: destinations_polarregions
+            description: "Destinations Polar Regions flag"
+          - name: destinations_spain
+            description: "Destinations Spain flag"
+          - name: destinations_turkey
+            description: "Destinations Turkey flag"
+          - name: destinations_us_northwest
+            description: "Destinations US Northwest flag"
+          - name: destinations_us_west_ca
+            description: "Destinations US West CA flag"
+          - name: destinations_worldgrandvoyages
+            description: "Destinations World Grand Voyages flag"
+          - name: interests_adventure
+            description: "Interests adventure flag"
+          - name: interests_climbing
+            description: "Interests climbing flag"
+          - name: interests_snowsports
+            description: "Interests snow sports flag"
+          - name: lifecycle_retired
+            description: "Lifecycle retired flag"
+          - name: lifecycle_married
+            description: "Lifecycle married flag"
+          - name: lifecycle_single
+            description: "Lifecycle single flag"
+          - name: marketing_directmail
+            description: "Marketing direct mail flag"
+          - name: marketing_emailmarketing
+            description: "Marketing email marketing flag"
+
+      - name: stream_address_normalized
+        description: "Consumer normalized address stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: normalized_primary_address_1
+            description: "Normalized primary address line 1"
+          - name: normalized_primary_address_2
+            description: "Normalized primary address line 2"
+          - name: normalized_primary_apt_suite
+            description: "Normalized primary apartment/suite"
+          - name: normalized_primary_zip
+            description: "Normalized primary ZIP code"
+          - name: normalized_primary_country
+            description: "Normalized primary country"
+          - name: normalized_primary_state
+            description: "Normalized primary state"
+          - name: normalized_primary_city
+            description: "Normalized primary city"
+          - name: normalized_primary_region
+            description: "Normalized primary region"
+          - name: normalized_secondary_address_1
+            description: "Normalized secondary address line 1"
+          - name: normalized_secondary_address_2
+            description: "Normalized secondary address line 2"
+          - name: normalized_secondary_apt_suite
+            description: "Normalized secondary apartment/suite"
+          - name: normalized_secondary_zip
+            description: "Normalized secondary ZIP code"
+          - name: normalized_secondary_country
+            description: "Normalized secondary country"
+          - name: normalized_secondary_state
+            description: "Normalized secondary state"
+          - name: normalized_secondary_city
+            description: "Normalized secondary city"
+          - name: normalized_secondary_region
+            description: "Normalized secondary region"
+          - name: primary_geocode_id
+            description: "Primary geocode identifier"
+          - name: secondary_geocode_id
+            description: "Secondary geocode identifier"
+
+      - name: stream_email_validation
+        description: "Consumer email validation stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: is_primary_email_valid
+            description: "Primary email valid flag"
+            tests:
+              - accepted_values:
+                  values: [true, false]
+          - name: verified_primary_email
+            description: "Verified primary email address"
+
+      - name: stream_agency_advisor_map
+        description: "Consumer agency advisor mapping stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: agencyid
+            description: "Agency identifier"
+          - name: agencybranchid
+            description: "Agency branch identifier"
+          - name: primary_advisor_id
+            description: "Primary advisor identifier"
+          - name: marketing_advisor_id
+            description: "Marketing advisor identifier"
+          - name: marketing_agency_branch_id
+            description: "Marketing agency branch identifier"
+          - name: is_agency_active
+            description: "Agency active flag"
+            tests:
+              - accepted_values:
+                  values: [true, false]
+
+      - name: stream_consumer_isexcluded
+        description: "Consumer exclusion stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: is_excluded
+            description: "Exclusion flag"
+            tests:
+              - accepted_values:
+                  values: [true, false]
+          - name: exclude_reason
+            description: "Exclusion reason"
+
+      - name: stream_consumer_totalspend
+        description: "Consumer total spend stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: totalspend12months
+            description: "Total spend 12 months amount"
+            tests:
+              - dbt_utils.expression_is_true:
+                  expression: ">= 0"
+
+      - name: stream_consumer_soft_deleted
+        description: "Consumer soft deletion stream"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: is_soft_deleted
+            description: "Soft deleted flag"
+            tests:
+              - accepted_values:
+                  values: [true, false]
+
+      - name: consumer
+        description: "Base consumer table for joins"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - unique
+              - not_null
+
+      - name: additional_attributes
+        description: "Consumer additional attributes lookup table"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: customertraveltype
+            description: "Customer travel type"
+
+      # Real person validation sources
+      - name: stream_isrealperson
+        description: "Stream for real person validation processing"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - not_null
+          - name: first_name
+            description: "Consumer first name"
+          - name: last_name
+            description: "Consumer last name"
+          - name: account_name
+            description: "Account name"
+
+      - name: consumer_isrealperson
+        description: "Consumer real person classification results"
+        columns:
+          - name: consumerid
+            description: "Consumer identifier"
+            tests:
+              - unique
+              - not_null
+          - name: isrealperson
+            description: "Real person classification flag"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [0, 1]
+          - name: inserted_datetime
+            description: "Record insertion timestamp"
+            tests:
+              - not_null
+          - name: updated_datetime
+            description: "Record update timestamp"
+            tests:
+              - not_null 

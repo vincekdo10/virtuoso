@@ -1,0 +1,358 @@
+version: 2
+
+models:
+  - name: fct_commission_booking_mapping
+    description: "Fact table mapping commission data to booking data with business logic"
+    columns:
+      - name: commissionid
+        description: "Commission ID"
+        data_tests:
+          - not_null
+          - unique
+      - name: scbookingid
+        description: "SC Booking ID"
+        data_tests:
+          - not_null
+      - name: datasourceid
+        description: "Data Source ID"
+        data_tests:
+          - not_null
+      - name: agency_id
+        description: "Agency ID"
+        data_tests:
+          - not_null
+      - name: agencybranchid
+        description: "Agency Branch ID"
+        data_tests:
+          - not_null
+      - name: is_valid_booking
+        description: "Whether booking is valid (not deleted, excluded, or void)"
+        data_tests:
+          - not_null
+      - name: isbookingmapped
+        description: "Whether booking is mapped (0 or 1)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: mapping_status
+        description: "Mapping status"
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['mapped', 'unmapped']
+      - name: booking_value_tier
+        description: "Booking value tier"
+        data_tests:
+          - accepted_values:
+              values: ['high_value', 'medium_value', 'low_value', 'zero_value']
+      - name: travel_duration_days
+        description: "Travel duration in days"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: total_booking_amount
+        description: "Total booking amount"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+  - name: dim_consumer_master
+    description: "Consolidated consumer master dimension combining all 19 consumer streams"
+    columns:
+      - name: consumerid
+        description: "Unique consumer identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: is_active
+        description: "Consumer active status"
+        tests:
+          - not_null
+
+      - name: first_name
+        description: "Consumer first name"
+
+      - name: last_name
+        description: "Consumer last name"
+
+      - name: primary_email
+        description: "Primary email address"
+
+      - name: is_primary_email_valid
+        description: "Email validation flag"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+      - name: isrealperson
+        description: "Real person classification flag"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+      - name: is_excluded
+        description: "Consumer exclusion flag"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+      - name: is_soft_deleted
+        description: "Soft deletion flag"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+      - name: is_agency_active
+        description: "Agency active flag"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+      - name: totalspend12months
+        description: "Total spend in last 12 months"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: tourspend12months
+        description: "Tour spend in last 12 months"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: hotelspend12months
+        description: "Hotel spend in last 12 months"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: age
+        description: "Consumer age"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "age >= 0 and age <= 150"
+
+      - name: numberofadultsinhh
+        description: "Number of adults in household"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: numberofchildren
+        description: "Number of children"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: numberofchildreninhh
+        description: "Number of children in household"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: numberofpersonsinhh
+        description: "Number of persons in household"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 1"
+
+      - name: inserted_timestamp
+        description: "Record insertion timestamp"
+        tests:
+          - not_null
+
+      - name: updated_timestamp
+        description: "Record update timestamp"
+        tests:
+          - not_null
+
+      - name: source_streams
+        description: "Array of source streams that contributed to this record"
+        tests:
+          - not_null
+
+    tests:
+      # Business rule validations
+      - dbt_utils.expression_is_true:
+          name: active_not_soft_deleted
+          expression: >
+            case 
+              when is_active = true 
+              then coalesce(is_soft_deleted, false) = false 
+              else true 
+            end
+
+      - dbt_utils.expression_is_true:
+          name: valid_email_has_validation
+          expression: >
+            case 
+              when primary_email is not null and primary_email != '' 
+              then is_primary_email_valid is not null 
+              else true 
+            end
+
+      - dbt_utils.expression_is_true:
+          name: address_consistency_check
+          expression: >
+            case 
+              when normalized_primary_state is not null and raw_state is not null 
+              then upper(left(normalized_primary_state, 2)) = upper(left(raw_state, 2)) 
+              else true 
+            end
+
+      - dbt_utils.expression_is_true:
+          name: address_normalization_completeness
+          expression: >
+            case 
+              when raw_city is not null and raw_state is not null 
+              then normalized_primary_city is not null and normalized_primary_state is not null 
+              else true 
+            end
+
+      - dbt_utils.expression_is_true:
+          name: reasonable_spend_amounts
+          expression: >
+            case 
+              when totalspend12months is not null 
+              then totalspend12months <= 1000000  -- No more than 1M spend
+              else true 
+            end
+
+      # Data quality checks
+      - dbt_utils.not_empty_string:
+          column_name: normalized_primary_state
+          where: "normalized_primary_state is not null"
+
+      - dbt_utils.not_empty_string:
+          column_name: normalized_primary_zip
+          where: "normalized_primary_zip is not null"
+
+  - name: dim_consumer_real_person_validation
+    description: "Consumer real person validation with 5-stage classification pipeline"
+    columns:
+      - name: consumerid
+        description: "Unique consumer identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: is_real_person
+        description: "Real person classification result (0=not real, 1=real)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+      - name: classification_reason
+        description: "Reason for classification"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['corporate', 'name_pattern', 'number_pattern', 'travel_pattern', 'real_person']
+
+      - name: classification_description
+        description: "Detailed description of classification logic"
+        tests:
+          - not_null
+
+      - name: classification_stage
+        description: "Stage number in classification pipeline (1-5)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+
+      - name: fullname
+        description: "Processed full name used for classification"
+
+      - name: first_name
+        description: "Consumer first name"
+
+      - name: last_name
+        description: "Consumer last name"
+
+      - name: account_name
+        description: "Account name"
+
+      - name: processed_at
+        description: "Processing timestamp"
+        tests:
+          - not_null
+
+      - name: inserted_datetime
+        description: "Record insertion timestamp"
+        tests:
+          - not_null
+
+      - name: updated_datetime
+        description: "Record update timestamp"
+        tests:
+          - not_null
+
+      - name: source_streams
+        description: "Array of source streams used for classification"
+        tests:
+          - not_null
+
+    tests:
+      # Business rule validations
+      - dbt_utils.expression_is_true:
+          name: corporate_always_not_real
+          expression: >
+            case 
+              when classification_reason = 'corporate' then is_real_person = 0 
+              else true 
+            end
+
+      - dbt_utils.expression_is_true:
+          name: reasonable_real_person_ratio
+          expression: >
+            (select avg(is_real_person::float) from {{ this }}) between 0.3 and 0.8
+
+  - name: consumer_isrealperson_sync
+    description: "Backward compatibility sync for consumer real person validation"
+    columns:
+      - name: consumerid
+        description: "Unique consumer identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: isrealperson
+        description: "Real person flag for backward compatibility"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+      - name: inserted_datetime
+        description: "Record insertion timestamp"
+        tests:
+          - not_null
+
+      - name: updated_datetime
+        description: "Record update timestamp"
+        tests:
+          - not_null
+
+      - name: classification_reason
+        description: "Classification reason for troubleshooting"
+        tests:
+          - not_null
+
+      - name: classification_stage
+        description: "Classification stage for troubleshooting"
+        tests:
+          - not_null
+
+    tests:
+      # Sync validation - ensure it matches the main validation table
+      - dbt_utils.expression_is_true:
+          name: sync_matches_validation
+          expression: >
+            consumerid in (
+              select consumerid 
+              from {{ ref('dim_consumer_real_person_validation') }}
+            )

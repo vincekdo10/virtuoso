@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: sharedservices
+    description: "Shared services data from Snowflake"
+    database: sharedservices
+    schema: sharedservices
+    tables:
+      - name: log
+        description: "Logging table for query execution tracking"
+        columns:
+          - name: query_id
+            description: "Query identifier"
+          - name: procedure_name
+            description: "Procedure name"
+          - name: target_table
+            description: "Target table name"
+          - name: records_affected
+            description: "Number of records affected"
+          - name: execution_timestamp
+            description: "Execution timestamp"
+
+  - name: sharedservices_config
+    description: "Configuration tables for shared services"
+    database: sharedservices
+    schema: config
+    tables:
+      - name: lookup_current_timestamp
+        description: "Current timestamp lookup for date calculations"
+        columns:
+          - name: currenttimestamp
+            description: "Current timestamp value"
+            tests:
+              - not_null 
