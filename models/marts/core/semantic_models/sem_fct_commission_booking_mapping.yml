@@ -121,3 +121,14 @@ semantic_models:
     create_metric: true
     expr: consumer_id
   primary_entity: commission
+- name: time_spine
+description: "A daily time spine for date-based filtering and metric calculations."
+model: ref('time_spine')
+entities:
+  - name: date_day
+    type: time
+    type_params:
+      time_granularity: day
+defaults:
+  agg_time_dimension: date_day
+
